@@ -32,3 +32,29 @@ class TrendingAlbum(Base):
 
 # Each row in TrendingAlbum refers to one row in Album through the album_id foreign key
 
+class User(Base):
+    __tablename__ = "users"
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    username = Column(String, unique=True, nullable=False)
+    email = Column(String, unique=True, nullable=False)
+    password_hash = Column(String, nullable=False)  # Store hashed passwords for zero-knowledge security
+    created_at = Column(Date, default=date.today)  # Date when the user was created
+
+class Review(Base): 
+    __tablename__ = "reviews"
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    album_id = Column(UUID(as_uuid=True), ForeignKey("albums.id"), nullable=False)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+    rating = Column(Integer, nullable = True) #1-10 rating for the album
+    review_text = Column(String, nullable=True)  # Text of the review
+    created_at = Column(Date, default=date.today)  # Date when the review was created
+    updated_at = Column(Date, nullable=True)  # Date when the review was last updated
+
+class Rating(Base):
+    __tablename__ = "ratings"
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    album_id = Column(UUID(as_uuid=True), ForeignKey("albums.id"), nullable=False)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+    rating = Column(Integer, nullable=False)  # 1-10 rating for the album
+    created_at = Column(Date, default=date.today)  # Date when the rating was created
+    updated_at = Column(Date, nullable=True)  # Date when the rating was last updated
