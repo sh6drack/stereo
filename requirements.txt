@@ -1,0 +1,13 @@
+required packages: 
+fastapi uvicorn psycopg2-binary requests pydantic python-dotenv
+
+
+"
+fastapi: The web framework
+uvicorn: ASGI server to run your application
+psycopg2-binary: PostgreSQL adapter
+requests: For API calls to MusicBrainz
+pydantic: Data validation
+python-dotenv: For environment variables
+sqlalchemy: ORM for database interactions
+"
