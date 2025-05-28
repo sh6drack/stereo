@@ -3,7 +3,6 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
-from .database import engine
 from . import models
 
 # Load environment variables from .env file
@@ -17,19 +16,18 @@ if not DATABASE_URL:
 engine = create_engine(DATABASE_URL)
 
 # create a session(how to interact with the database)
-sessionmaker = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+LocalSession = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 # create a base class for the database models
 Base = declarative_base()
 
 # function to get a database session
-def get_dbs():
-    dbs = sessionmaker
+def get_db():
+    db = LocalSession()
     try:
-        yield dbs # will provide a session to the caller
+        yield db # will provide a session to the caller
     finally: #always executes 
-        dbs.close()
+        db.close()
 
 # create all tables in the database
-models.Base.metadata.create_all(bind=engine)
 # bind means to connect the models to the database

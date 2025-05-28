@@ -6,17 +6,24 @@ from sqlalchemy import Column, String, Integer, Date, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID #postgresql uuid
 from .database import Base
 
-#foreinkeys define relationships between tables
+#foreignkeys define relationships between tables
+
 #defining database models
+
+#uuid is a universally unique identifier, used to uniquely identify rows in the database
+#primary_key is a unique identifier for each row in the table
+#nullable=False means that the column cannot be null, it must have a value
 
 class Album(Base):
     __tablename__ = "albums"
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     title = Column(String, nullable=False)
+    artist = Column(String, nullable=False)
     release_date = Column(Date, nullable=False)
     cover_art = Column(String, nullable=False)
 
-class trendingAlbum(Base):
+
+class TrendingAlbum(Base):
     __tablename__ = "trending_albums"
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     album_id = Column(UUID(as_uuid=True), ForeignKey("albums.id"), nullable=False)
