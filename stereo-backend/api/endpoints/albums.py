@@ -18,14 +18,14 @@ router = APIRouter(prefix="/albums", tags = ["albums"])
 # the router is used to create a new endpoint for the API
 
 
-class AlbumCreate(BaseModel):
+class AlbumCreate(BaseModel): #what client sends
     title: str
     artist: str
     release_date: str
     release_date: date
     cover_art: str
 
-class AlbumResponse(BaseModel):
+class AlbumResponse(BaseModel): #what client recieves
     id: UUID
     title: str
     artist: str
@@ -54,6 +54,7 @@ class TrendingAlbumResponse(BaseModel):
 @router.get("/{album_id}", response_model=AlbumResponse)
 # "/{album_id}" is a path parameter that will be replaced with the actual album ID when the endpoint is called
 def get_album(album_id: UUID, db:Session = Depends(get_db)):
+    #depends provides a way to inject dependencies into the endpoint func
     """
     Retrieve a specific album by its ID ; query the database for the album with the given ID
     """

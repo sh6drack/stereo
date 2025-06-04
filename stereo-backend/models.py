@@ -56,5 +56,5 @@ class Rating(Base):
     album_id = Column(UUID(as_uuid=True), ForeignKey("albums.id"), nullable=False)
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
     rating = Column(Integer, nullable=False)  # 1-10 rating for the album
-    created_at = Column(Date, default=date.today)  # Date when the rating was created
+    created_at = Column(Date, default=date.today, nullable=False)  # Date when the rating was created
     updated_at = Column(Date, nullable=True)  # Date when the rating was last updated
