@@ -20,7 +20,7 @@ class Album(Base):
     title = Column(String, nullable=False)
     artist = Column(String, nullable=False)
     release_date = Column(Date, nullable=False)
-    cover_art = Column(String, nullable=False)
+    cover_url = Column(String, nullable=False)
 
 
 class TrendingAlbum(Base):

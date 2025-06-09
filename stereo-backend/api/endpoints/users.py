@@ -7,7 +7,7 @@ from uuid import UUID
 import uuid
 
 from database.database import get_db
-from models import Album, TrendingAlbum, Rating, Review
+from database.models import Album, TrendingAlbum, Rating, Review, User
 from pydantic import BaseModel
 from typing import List
 from datetime import date
@@ -71,3 +71,5 @@ def get_user_profile(user_id: UUID, db: Session = Depends(get_db)):
     db_user = db.query(models.User).filter(models.User.id == user_id).first()
     if not db_user:
         raise HTTPException(status_code=404, detail="User not found")
+    
+    return UserResponse.from_orm(db_user)

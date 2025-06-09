@@ -6,7 +6,7 @@ from uuid import UUID
 import uuid
 
 from database.database import get_db
-from models import Album, TrendingAlbum, Rating, Review
+from database.models import Album, TrendingAlbum, Rating, Review
 from pydantic import BaseModel
 from typing import List
 from datetime import date
@@ -30,7 +30,7 @@ class AlbumResponse(BaseModel): #what client recieves
     title: str
     artist: str
     release_date: date
-    cover_art: str
+    cover_url: str
 
     class Config:
         orm_mode = True #this allows the model to read data as if it were a SQLAlchemy model instance
@@ -76,7 +76,7 @@ def create_album(album: AlbumCreate, db: Session = Depends(get_db)):
         title=album.title,
         artist=album.artist,
         release_date=album.release_date,
-        cover_art=album.cover_art
+        cover_url=album.cover_url
     )
     
     db.add(new_album)

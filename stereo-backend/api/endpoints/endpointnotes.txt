@@ -10,14 +10,19 @@ trending.py:
 GET /trending - get trending list
 POST /trending - update trending rankings
 
-users.py (for later):
+users.py:
 
 POST /auth/register - create account
 POST /auth/login - login
 GET /users/me - get current user
 
-reviews.py (for later):
+reviews.py:
 
 POST /albums/{id}/reviews - add review
 PUT /reviews/{id} - update review
 DELETE /reviews/{id} - delete review
+
+ratings.py:
+
+
+
