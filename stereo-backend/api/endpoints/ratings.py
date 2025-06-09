@@ -29,7 +29,7 @@ class RatingResponse(BaseModel):
         orm_mode = True
 
 #get /ratings
-@router.get("{album_id}", response_model=List[RatingResponse])
+@router.get("/{album_id}", response_model=List[RatingResponse])
 def get_ratings(album_id: UUID, db: Session = Depends(get_db)):
     """
     retrieve all ratings for a specific album by its ID

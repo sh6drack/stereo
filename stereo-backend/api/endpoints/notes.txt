@@ -1,3 +1,5 @@
+endpoints
+
 albums.py:
 
 GET /albums/{id} - get one album
@@ -25,4 +27,17 @@ DELETE /reviews/{id} - delete review
 ratings.py:
 
 
+6.8 updates
+Today's Backend Updates
+Completed
+
+- built all endpoint files (albums, trending, users, reviews, ratings)
+- Added search functionality with musicbrainz 
+- Implemented password hashing for user authentication
+- added "user-friendly" rating endpoint: POST /albums/{id}/rate
+
+what to do next
+
+- seeding script with music brainz and cover art archive
+- test database and endpoint functionalities
 

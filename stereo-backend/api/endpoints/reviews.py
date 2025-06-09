@@ -26,7 +26,7 @@ class ReviewResponse(BaseModel):
     id: UUID
     album_id: UUID
     user_id: UUID
-    content: str
+    review_text: str
     rating: int
     created_at: date
 
