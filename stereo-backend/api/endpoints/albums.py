@@ -1,29 +1,29 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
-from .. import models, schemas
+from .. import models
 from uuid import UUID
 import uuid
 
-from database import get_db
-from models import Album, TrendingAlbum
+from database.database import get_db
+from models import Album, TrendingAlbum, Rating, Review
 from pydantic import BaseModel
 from typing import List
 from datetime import date
-
 
 router = APIRouter(prefix="/albums", tags = ["albums"]) 
 # prefix="/albums" sets the base path for all endpoints in this router
 #tags = ["albums"] is used to group endpoints in the API documentation
 # the router is used to create a new endpoint for the API
 
+# models are used to define the structure of
+# the data that will be sent and received by the API
 
 class AlbumCreate(BaseModel): #what client sends
     title: str
     artist: str
-    release_date: str
     release_date: date
-    cover_art: str
+    cover_url: str
 
 class AlbumResponse(BaseModel): #what client recieves
     id: UUID
@@ -55,11 +55,12 @@ class TrendingAlbumResponse(BaseModel):
 # "/{album_id}" is a path parameter that will be replaced with the actual album ID when the endpoint is called
 def get_album(album_id: UUID, db:Session = Depends(get_db)):
     #depends provides a way to inject dependencies into the endpoint func
+    #allows us to use get_db to get a database session
     """
     Retrieve a specific album by its ID ; query the database for the album with the given ID
     """
     album = db.query(Album).filter (Album.id == album_id).first()
-
+    #QUERY is used to retrieve data from database 
     if album is None:
         raise HTTPException(status_code=404, detail="Album not found")
     return album
@@ -79,7 +80,7 @@ def create_album(album: AlbumCreate, db: Session = Depends(get_db)):
     )
     
     db.add(new_album)
-    db.commit
+    db.commit()
     db.refresh(new_album) #get the updated instance from the database
 
     return new_album

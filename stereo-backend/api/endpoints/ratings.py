@@ -1,12 +1,12 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
-from .. import models, schemas
+from .. import models
 from uuid import UUID
 import uuid
 
-from database import get_db
-from models import Album, TrendingAlbum
+from database.database import get_db
+from models import Album, TrendingAlbum, Rating, Review
 from pydantic import BaseModel
 from typing import List
 from datetime import date
@@ -31,7 +31,9 @@ class RatingResponse(BaseModel):
 #get /ratings
 @router.get("{album_id}", response_model=List[RatingResponse])
 def get_ratings(album_id: UUID, db: Session = Depends(get_db)):
-    """retrieve all ratings for a specific album by its ID"""
+    """
+    retrieve all ratings for a specific album by its ID
+    """
     ratings = db.query(models.Rating).filter(models.Rating.album_id == album_id).all()
     if not ratings:
         raise HTTPException(status_code=404, detail="No ratings found for this album")
@@ -40,7 +42,9 @@ def get_ratings(album_id: UUID, db: Session = Depends(get_db)):
 #post /ratings
 @router.post("/", response_model=RatingResponse)
 def create_rating(rating: RatingCreate, db: Session = Depends(get_db)):
-    # Example implementation, adjust as needed
+    """
+    Create a new rating for an album
+    """
     db_rating = models.Rating(
         id=uuid.uuid4(),
         album_id=rating.album_id,
@@ -55,7 +59,9 @@ def create_rating(rating: RatingCreate, db: Session = Depends(get_db)):
 #update /ratings/{rating_id}
 @router.put("/{rating_id}", response_model=RatingResponse)
 def update_rating(rating_id: UUID, rating: RatingCreate, db: Session = Depends(get_db)):
-    """Update an existing rating by its ID"""
+    """
+    Update an existing rating by its ID
+    """
     db_rating = db.query(models.Rating).filter(models.Rating.id == rating_id).first()
     if not db_rating:
         raise HTTPException(status_code=404, detail="Rating not found")

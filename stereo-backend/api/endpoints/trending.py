@@ -1,12 +1,12 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
-from .. import models, schemas
+from .. import models
 from uuid import UUID
 import uuid
 
-from database import get_db
-from models import Album, TrendingAlbum
+from database.database import get_db
+from models import Album, TrendingAlbum, Rating, Review
 from pydantic import BaseModel
 from typing import List
 from datetime import date
@@ -33,13 +33,15 @@ class TrendingAlbumResponse(BaseModel):
 @router.get("/", response_model=List[TrendingAlbumResponse])
 def get_trending(db: Session = Depends(get_db)):
     """
-    Retrieve the top 25 trending albums for a specific album ID.
+    Retrieve the top 25 trending albums with full details
     """
-    trending_albums = (db.query(TrendingAlbum).
-                       order_by(TrendingAlbum.rank).limit(25).all())
-    if not trending_albums:
+    trending_albums = (db.query(Album, TrendingAlbum).
+                       join(TrendingAlbum, Album.id == TrendingAlbum.album_id).
+                       order_by(TrendingAlbum.rank).
+                       limit(25).all())
+    if not trending_albums: 
         raise HTTPException(status_code=404, detail="No trending albums found")
-    return trending_albums
+    return [album for album, trending in trending_albums]
 
 @router.post("/", response_model=TrendingAlbumCreate)
 def create_trending_album(
