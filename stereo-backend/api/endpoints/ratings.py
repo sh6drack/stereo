@@ -74,3 +74,45 @@ def update_rating(rating_id: UUID, rating: RatingCreate, db: Session = Depends(g
     db.commit()
     db.refresh(db_rating)
     return db_rating
+
+
+@router.post("/albums/{album_id}/rate", response_model=RatingResponse)
+def rate_album(album_id: UUID, rating_value: int, user_id: UUID, db: Session = Depends(get_db)):
+    """
+    Rate an album with a simplified endpoint
+    """
+    # rating is between 1-10
+    if rating_value < 1 or rating_value > 10:
+        raise HTTPException(status_code=400, detail="Rating must be between 1 and 10")
+    
+    # checking if album exists
+    album = db.query(Album).filter(Album.id == album_id).first()
+    if not album:
+        raise HTTPException(status_code=404, detail="Album not found")
+    
+    # has the user already rated this album?
+    existing_rating = db.query(Rating).filter(
+        Rating.album_id == album_id,
+        Rating.user_id == user_id
+    ).first()
+    
+    if existing_rating:
+        # update existing rating
+        existing_rating.rating = rating_value
+        existing_rating.updated_at = date.today()
+        db.commit()
+        db.refresh(existing_rating)
+        return existing_rating
+    else:
+        # creating a new rating
+        new_rating = Rating(
+            id=uuid.uuid4(),
+            album_id=album_id,
+            user_id=user_id,
+            rating=rating_value,
+            created_at=date.today()
+        )
+        db.add(new_rating)
+        db.commit()
+        db.refresh(new_rating)
+        return new_rating
