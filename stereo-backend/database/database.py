@@ -5,14 +5,14 @@ from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
 from . import models
 
+
+# loads environment variables from .env file
+load_dotenv()
+
+# db URL from env variables;  creates a connection to the datbase
 DATABASE_URL = os.getenv("DATABASE_URL")
 engine = create_engine(DATABASE_URL)
 
-# Load environment variables from .env file
-load_dotenv()
-
-# Database URL from environment variable ; create connection to database
-DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
     raise ValueError("DATABASE_URL environment variable not set")
 
@@ -32,5 +32,4 @@ def get_db():
     finally: #always executes 
         db.close()
 
-# create all tables in the database
 # bind means to connect the models to the database

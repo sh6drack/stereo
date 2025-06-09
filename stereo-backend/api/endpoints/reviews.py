@@ -16,7 +16,7 @@ router = APIRouter(prefix="/reviews", tags=["reviews"])
 class ReviewCreate(BaseModel):
     album_id: UUID
     user_id: UUID
-    content: str
+    review_text: str
     rating: int
 
 # we need create review for album , get all reviews, get one review, update a review

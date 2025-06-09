@@ -10,7 +10,7 @@ from database.models import Album, TrendingAlbum, Rating, Review
 from pydantic import BaseModel
 from typing import List
 from datetime import date
-from endpoints.albums import AlbumResponse
+from .albums import AlbumResponse
 
 router = APIRouter(prefix="/trending", tags=["trending"])
 # prefix="/trending" sets the base path for all endpoints in this router
