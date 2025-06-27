@@ -3,33 +3,28 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
-from . import models
-
 
 # loads environment variables from .env file
 load_dotenv()
 
-# db URL from env variables;  creates a connection to the datbase
+# gets db url from env variables and creates connection to database
 DATABASE_URL = os.getenv("DATABASE_URL")
-engine = create_engine(DATABASE_URL)
 
 if not DATABASE_URL:
     raise ValueError("DATABASE_URL environment variable not set")
 
 engine = create_engine(DATABASE_URL)
 
-# create a session(how to interact with the database)
+# creates session factory for database interactions
 LocalSession = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-# create a base class for the database models
+# base class for all database models
 Base = declarative_base()
 
-# function to get a database session
+# dependency function to get database session
 def get_db():
     db = LocalSession()
     try:
-        yield db # will provide a session to the caller
-    finally: #always executes 
+        yield db  # provides session to caller
+    finally:  # always executes to clean up
         db.close()
-
-# bind means to connect the models to the database
