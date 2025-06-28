@@ -65,3 +65,5 @@ logs/
 
 #ui dependencies
 node_modules/
+
+admin/

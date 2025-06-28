@@ -43,6 +43,23 @@ def unified_search(
     albums = album_query.limit(limit).all()
     total_albums = album_query.count()
     
+    # add average ratings to albums
+    albums_with_ratings = []
+    for album in albums:
+        avg_rating = db.query(func.avg(Rating.rating)).filter(Rating.album_id == album.id).scalar()
+        album_dict = {
+            "id": album.id,
+            "title": album.title,
+            "artist": album.artist,
+            "release_date": album.release_date,
+            "cover_url": album.cover_url,
+            "description": album.description,
+            "runtime_minutes": album.runtime_minutes,
+            "musicbrainz_id": album.musicbrainz_id,
+            "average_rating": round(avg_rating, 1) if avg_rating else None
+        }
+        albums_with_ratings.append(AlbumResponse(**album_dict))
+    
     # search users
     user_query = db.query(User).filter(
         (User.username.ilike(f"%{search_term}%")) |
@@ -53,7 +70,7 @@ def unified_search(
     total_users = user_query.count()
     
     return UnifiedSearchResult(
-        albums=[AlbumResponse.model_validate(album) for album in albums],
+        albums=albums_with_ratings,
         users=[UserResponse.model_validate(user) for user in users],
         total_albums=total_albums,
         total_users=total_users

@@ -1,11 +1,11 @@
-# Stereo Backend API
+# Waxfeed Backend API
 
 FastAPI-based music rating and review platform with MusicBrainz integration.
 
 ## Quick Start
 ```bash
-cd stereo-backend
-source ../stereo-env/bin/activate
+cd waxfeed-backend
+source ../waxfeed-env/bin/activate
 uvicorn main:app --reload --port 8000
 ```
 Visit http://127.0.0.1:8000/docs for interactive API documentation.

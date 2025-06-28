@@ -6,7 +6,8 @@ from datetime import date
 from pydantic import BaseModel
 
 from database.database import get_db
-from database.models import Album, TrendingAlbum
+from database.models import Album, TrendingAlbum, Rating
+from sqlalchemy import func
 from .albums import AlbumResponse
 
 router = APIRouter(prefix="/trending", tags=["trending"])
@@ -24,18 +25,39 @@ class TrendingAlbumResponse(BaseModel):
     week_start: date
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
-@router.get("/", response_model=List[AlbumResponse])
+@router.get("/albums", response_model=List[AlbumResponse])
 def get_trending(db: Session = Depends(get_db)):
-    # gets top 25 trending albums with full album details
+    # gets top 25 trending albums with full album details and average ratings
     trending_albums = (db.query(Album, TrendingAlbum).
                        join(TrendingAlbum, Album.id == TrendingAlbum.album_id).
                        order_by(TrendingAlbum.rank).
                        limit(25).all())
     if not trending_albums: 
         raise HTTPException(status_code=404, detail="No trending albums found")
-    return [album for album, trending in trending_albums]
+    
+    # add average rating to each album
+    result = []
+    for album, trending in trending_albums:
+        # calculate average rating
+        avg_rating = db.query(func.avg(Rating.rating)).filter(Rating.album_id == album.id).scalar()
+        
+        # create album response with average rating
+        album_dict = {
+            "id": album.id,
+            "title": album.title,
+            "artist": album.artist,
+            "release_date": album.release_date,
+            "cover_url": album.cover_url,
+            "description": album.description,
+            "runtime_minutes": album.runtime_minutes,
+            "musicbrainz_id": album.musicbrainz_id,
+            "average_rating": round(avg_rating, 1) if avg_rating else None
+        }
+        result.append(AlbumResponse(**album_dict))
+    
+    return result
 
 @router.post("/", response_model=TrendingAlbumResponse)
 def create_trending_album(

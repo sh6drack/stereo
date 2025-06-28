@@ -28,7 +28,7 @@ class ReviewResponse(BaseModel):
     created_at: date
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 @router.get("/{album_id}", response_model=List[ReviewResponse])
 def get_reviews(album_id: UUID, db: Session = Depends(get_db)):

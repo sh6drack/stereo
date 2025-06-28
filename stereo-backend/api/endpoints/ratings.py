@@ -24,7 +24,7 @@ class RatingResponse(BaseModel):
     rating: int = Field(..., ge=1, le=10)
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 @router.get("/{album_id}", response_model=List[RatingResponse])
 def get_ratings(album_id: UUID, db: Session = Depends(get_db)):

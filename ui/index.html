@@ -6,7 +6,7 @@
     <title>Waxfeed</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -15,75 +15,153 @@
         }
         
         body {
-            font-family: 'Noto Sans', sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             background: #000;
             color: #fff;
             min-height: 100vh;
             overflow-x: hidden;
+            font-weight: 300;
+            letter-spacing: 0.01em;
         }
         
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
-            padding: 0 32px;
+            padding: 0 40px;
         }
         
         header {
-            padding: 24px 0 48px 0;
+            padding: 32px 0 64px 0;
+            position: relative;
         }
         
         .header-content {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            position: relative;
         }
         
         .logo-section {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 16px;
         }
         
         .logo-dots {
             display: flex;
-            gap: 6px;
+            gap: 8px;
         }
         
         .dot {
-            width: 8px;
-            height: 8px;
+            width: 6px;
+            height: 6px;
             border-radius: 50%;
-            animation: pulse 2s ease-in-out infinite;
+            animation: pulse 3s ease-in-out infinite;
         }
         
-        .dot-red { background: #ff4444; }
-        .dot-green { background: #44ff44; animation-delay: 0.3s; }
-        .dot-blue { background: #4444ff; animation-delay: 0.6s; }
+        .dot-red { background: #ff3333; }
+        .dot-green { background: #33ff33; animation-delay: 0.4s; }
+        .dot-blue { background: #3333ff; animation-delay: 0.8s; }
         
         @keyframes pulse {
-            0%, 100% { opacity: 0.6; transform: scale(1); }
+            0%, 100% { opacity: 0.4; transform: scale(0.9); }
             50% { opacity: 1; transform: scale(1.1); }
         }
         
         .logo {
-            font-size: 28px;
-            font-weight: 700;
-            letter-spacing: -0.02em;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 24px;
+            font-weight: 400;
+            letter-spacing: -0.01em;
+            color: #fff;
         }
         
-        nav {
+        .header-icons {
             display: flex;
-            gap: 48px;
+            align-items: center;
+            gap: 24px;
+        }
+        
+        .icon-button {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.7);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 6px;
+        }
+        
+        .icon-button:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.05);
+            transform: scale(1.1);
+        }
+        
+        .profile-photo {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #333, #555);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .profile-photo:hover {
+            transform: scale(1.1);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+        
+        .profile-photo::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 16px;
+            height: 16px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+        }
+        
+        .profile-photo::after {
+            content: '';
+            position: absolute;
+            bottom: 4px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 12px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 10px 10px 0 0;
+        }
+        
+        .center-nav {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            gap: 80px;
         }
         
         .nav-link {
-            color: #666;
+            color: rgba(255, 255, 255, 0.4);
             text-decoration: none;
-            font-weight: 500;
-            font-size: 16px;
-            transition: all 0.3s ease;
+            font-weight: 400;
+            font-size: 15px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             cursor: pointer;
             position: relative;
+            letter-spacing: 0.02em;
         }
         
         .nav-link:hover,
@@ -94,28 +172,36 @@
         .nav-link.active::after {
             content: '';
             position: absolute;
-            bottom: -8px;
-            left: 0;
-            right: 0;
-            height: 1px;
+            bottom: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 4px;
             background: #fff;
-            transform: scaleX(0);
-            animation: slideIn 0.3s ease forwards;
+            border-radius: 50%;
+            animation: appear 0.4s ease forwards;
         }
         
-        @keyframes slideIn {
-            to { transform: scaleX(1); }
+        @keyframes appear {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) scale(0);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) scale(1);
+            }
         }
         
         main {
-            min-height: calc(100vh - 120px);
+            min-height: calc(100vh - 160px);
         }
         
         .tab-content {
             display: none;
             opacity: 0;
             transform: translateY(20px);
-            transition: all 0.4s ease;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
         .tab-content.active {
@@ -125,77 +211,16 @@
         }
         
         .section-title {
-            font-size: 32px;
-            font-weight: 600;
-            margin-bottom: 32px;
+            font-size: 28px;
+            font-weight: 300;
+            margin-bottom: 48px;
             letter-spacing: -0.02em;
             opacity: 0;
-            animation: fadeInUp 0.6s ease forwards;
+            animation: fadeInUp 0.8s ease forwards;
+            color: rgba(255, 255, 255, 0.9);
         }
         
         @keyframes fadeInUp {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-        }
-        
-        .search-container {
-            margin-bottom: 48px;
-        }
-        
-        .search-input {
-            width: 100%;
-            max-width: 500px;
-            padding: 16px 24px;
-            background: rgba(255, 255, 255, 0.05);
-            border: none;
-            border-radius: 12px;
-            color: #fff;
-            font-family: inherit;
-            font-size: 16px;
-            transition: all 0.3s ease;
-        }
-        
-        .search-input:focus {
-            outline: none;
-            background: rgba(255, 255, 255, 0.08);
-            transform: scale(1.02);
-        }
-        
-        .search-input::placeholder {
-            color: #666;
-        }
-        
-        .album-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-            gap: 24px;
-            margin-top: 32px;
-        }
-        
-        .album-card {
-            background: transparent;
-            border-radius: 12px;
-            overflow: hidden;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            cursor: pointer;
-            opacity: 0;
-            animation: fadeInStagger 0.6s ease forwards;
-        }
-        
-        .album-card:nth-child(1) { animation-delay: 0.1s; }
-        .album-card:nth-child(2) { animation-delay: 0.2s; }
-        .album-card:nth-child(3) { animation-delay: 0.3s; }
-        .album-card:nth-child(4) { animation-delay: 0.4s; }
-        .album-card:nth-child(5) { animation-delay: 0.5s; }
-        .album-card:nth-child(n+6) { animation-delay: 0.6s; }
-        
-        @keyframes fadeInStagger {
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -206,42 +231,220 @@
             }
         }
         
+        .search-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(20px);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+        
+        .search-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+        
+        .search-container {
+            width: 100%;
+            max-width: 600px;
+            padding: 0 40px;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 20px 32px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            color: #fff;
+            font-family: inherit;
+            font-size: 18px;
+            font-weight: 300;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(20px);
+        }
+        
+        .search-input:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: scale(1.02);
+        }
+        
+        .search-input::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+        
+        .search-close {
+            position: absolute;
+            top: 40px;
+            right: 40px;
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 24px;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+        
+        .search-close:hover {
+            color: #fff;
+        }
+        
+        .album-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            margin-top: 40px;
+        }
+        
+        .album-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 24px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 20px;
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            opacity: 0;
+            animation: fadeInStagger 0.8s ease forwards;
+            position: relative;
+        }
+        
+        .album-left {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            flex: 1;
+        }
+        
+        .album-card:nth-child(1) { animation-delay: 0.1s; }
+        .album-card:nth-child(2) { animation-delay: 0.15s; }
+        .album-card:nth-child(3) { animation-delay: 0.2s; }
+        .album-card:nth-child(4) { animation-delay: 0.25s; }
+        .album-card:nth-child(5) { animation-delay: 0.3s; }
+        .album-card:nth-child(n+6) { animation-delay: 0.35s; }
+        
+        @keyframes fadeInStagger {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+        }
+        
         .album-card:hover {
-            transform: translateY(-8px) scale(1.02);
+            background: rgba(255, 255, 255, 0.04);
+            border-color: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
         }
         
         .album-cover {
-            width: 100%;
-            aspect-ratio: 1;
+            width: 120px;
+            height: 120px;
             background: #111;
             background-size: cover;
             background-position: center;
-            transition: all 0.4s ease;
+            border-radius: 6px;
+            flex-shrink: 0;
+            transition: all 0.6s ease;
         }
         
         .album-card:hover .album-cover {
-            filter: brightness(1.1);
+            filter: brightness(1.15) contrast(1.1);
         }
         
         .album-info {
-            padding: 20px 0;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
         }
         
         .album-title {
-            font-weight: 600;
-            font-size: 16px;
-            margin-bottom: 6px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
+            font-weight: 400;
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.95);
+            margin-bottom: 4px;
         }
         
         .album-artist {
-            color: #888;
-            font-size: 14px;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 16px;
+            font-weight: 500;
+            font-family: 'JetBrains Mono', monospace;
+            margin-bottom: 8px;
+        }
+        
+        .album-meta {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .album-year {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 13px;
+            font-weight: 300;
+        }
+        
+        .album-runtime {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 13px;
+            font-weight: 300;
+        }
+        
+        .album-rating {
+            color: rgba(255, 255, 255, 0.95);
+            font-size: 18px;
+            font-weight: 500;
+            font-family: 'JetBrains Mono', monospace;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            padding: 8px 16px;
             white-space: nowrap;
+            flex-shrink: 0;
+        }
+        
+        .add-button {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 14px;
+            font-weight: 400;
+            font-family: 'JetBrains Mono', monospace;
+            background: rgba(51, 255, 51, 0.1);
+            border: 1px solid rgba(51, 255, 51, 0.3);
+            border-radius: 6px;
+            padding: 8px 16px;
+            white-space: nowrap;
+            flex-shrink: 0;
+            transition: all 0.3s ease;
+        }
+        
+        .add-button:hover {
+            background: rgba(51, 255, 51, 0.2);
+            border-color: rgba(51, 255, 51, 0.5);
+        }
+        
+        .album-status {
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 12px;
+            font-weight: 300;
         }
         
         /* Album Detail View */
@@ -249,7 +452,7 @@
             display: none;
             opacity: 0;
             transform: translateX(100%);
-            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
         .album-detail.active {
@@ -260,17 +463,17 @@
         
         .album-header {
             display: flex;
-            gap: 32px;
-            margin-bottom: 48px;
+            gap: 48px;
+            margin-bottom: 64px;
         }
         
         .album-cover-large {
-            width: 300px;
-            height: 300px;
+            width: 320px;
+            height: 320px;
             background: #111;
             background-size: cover;
             background-position: center;
-            border-radius: 12px;
+            border-radius: 8px;
             flex-shrink: 0;
         }
         
@@ -279,34 +482,38 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
-            gap: 16px;
+            gap: 20px;
         }
         
         .album-title-large {
-            font-size: 36px;
-            font-weight: 700;
+            font-size: 32px;
+            font-weight: 300;
             letter-spacing: -0.02em;
+            color: rgba(255, 255, 255, 0.95);
         }
         
         .album-artist-large {
-            font-size: 20px;
-            color: #888;
-            font-weight: 500;
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.6);
+            font-weight: 300;
         }
         
         .album-year {
-            font-size: 16px;
-            color: #666;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.4);
+            font-weight: 300;
         }
         
         .back-button {
             background: none;
             border: none;
-            color: #888;
-            font-size: 16px;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 14px;
             cursor: pointer;
-            margin-bottom: 32px;
+            margin-bottom: 40px;
             transition: color 0.3s ease;
+            font-family: inherit;
+            font-weight: 300;
         }
         
         .back-button:hover {
@@ -314,53 +521,59 @@
         }
         
         .reviews-section {
-            margin-top: 48px;
+            margin-top: 64px;
         }
         
         .reviews-title {
-            font-size: 24px;
-            font-weight: 600;
-            margin-bottom: 32px;
+            font-size: 20px;
+            font-weight: 300;
+            margin-bottom: 40px;
+            color: rgba(255, 255, 255, 0.8);
         }
         
         .review {
-            padding: 24px 0;
+            padding: 32px 0;
             transition: all 0.3s ease;
         }
         
         .review:nth-child(even) {
-            background: rgba(255, 255, 255, 0.02);
-            margin: 0 -32px;
-            padding: 24px 32px;
+            background: rgba(255, 255, 255, 0.015);
+            margin: 0 -40px;
+            padding: 32px 40px;
         }
         
         .review-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 12px;
+            margin-bottom: 16px;
         }
         
         .review-user {
-            font-weight: 600;
-            font-size: 16px;
+            font-weight: 400;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.9);
         }
         
         .review-rating {
-            color: #888;
-            font-size: 14px;
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 12px;
+            font-weight: 300;
         }
         
         .review-text {
-            line-height: 1.6;
-            color: #ccc;
+            line-height: 1.7;
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 300;
+            font-size: 14px;
         }
         
         .loading {
-            color: #888;
+            color: rgba(255, 255, 255, 0.4);
             text-align: center;
-            padding: 64px 0;
-            font-size: 18px;
+            padding: 80px 0;
+            font-size: 16px;
+            font-weight: 300;
         }
         
         /* Smooth scrolling */
@@ -370,20 +583,53 @@
         
         /* Custom scrollbar */
         ::-webkit-scrollbar {
-            width: 6px;
+            width: 4px;
         }
         
         ::-webkit-scrollbar-track {
-            background: #111;
+            background: transparent;
         }
         
         ::-webkit-scrollbar-thumb {
-            background: #333;
-            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
         }
         
         ::-webkit-scrollbar-thumb:hover {
-            background: #555;
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        /* About link */
+        .about-link {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            color: rgba(255, 255, 255, 0.3);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 300;
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+        
+        .about-link:hover {
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        /* Trending numbers */
+        .trending-number {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: rgba(0, 0, 0, 0.8);
+            color: rgba(255, 255, 255, 0.9);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            font-weight: 500;
+            padding: 6px 10px;
+            border-radius: 4px;
+            backdrop-filter: blur(10px);
+            z-index: 10;
         }
     </style>
 </head>
@@ -397,13 +643,28 @@
                         <div class="dot dot-green"></div>
                         <div class="dot dot-blue"></div>
                     </div>
-                    <div class="logo">Waxfeed</div>
+                    <div class="logo">waxfeed</div>
                 </div>
-                <nav>
-                    <a class="nav-link active" data-tab="trending">Trending</a>
-                    <a class="nav-link" data-tab="friends">Friends</a>
-                    <a class="nav-link" data-tab="profile">Profile</a>
-                </nav>
+                
+                <div class="center-nav">
+                    <a class="nav-link active" data-tab="trending">trending</a>
+                    <a class="nav-link" data-tab="friends">friends activity</a>
+                </div>
+                
+                <div class="header-icons">
+                    <button class="icon-button" onclick="openSearch()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <circle cx="11" cy="11" r="8"/>
+                            <path d="m21 21-4.35-4.35"/>
+                        </svg>
+                    </button>
+                    <button class="icon-button" onclick="showCreateMenu()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M12 5v14M5 12h14"/>
+                        </svg>
+                    </button>
+                    <div class="profile-photo" onclick="showProfile()"></div>
+                </div>
             </div>
         </div>
     </header>
@@ -412,30 +673,19 @@
         <div class="container">
             <!-- Trending Tab -->
             <div id="trending" class="tab-content active">
-                <h1 class="section-title">Trending</h1>
-                <div class="search-container">
-                    <input type="text" class="search-input" placeholder="Search albums, artists..." id="search-input">
-                </div>
                 <div id="trending-albums" class="album-grid">
-                    <div class="loading">Loading trending albums...</div>
+                    <div class="loading">loading trending albums...</div>
                 </div>
             </div>
 
             <!-- Friends Tab -->
             <div id="friends" class="tab-content">
-                <h1 class="section-title">Friends Activity</h1>
-                <div class="loading">Coming soon...</div>
-            </div>
-
-            <!-- Profile Tab -->
-            <div id="profile" class="tab-content">
-                <h1 class="section-title">Profile</h1>
-                <div class="loading">Coming soon...</div>
+                <div class="loading">coming soon...</div>
             </div>
 
             <!-- Album Detail View -->
             <div id="album-detail" class="album-detail">
-                <button class="back-button" onclick="goBack()">← Back to Trending</button>
+                <button class="back-button" onclick="goBack()">← back</button>
                 <div class="album-header">
                     <div id="album-cover-large" class="album-cover-large"></div>
                     <div class="album-meta">
@@ -445,15 +695,24 @@
                     </div>
                 </div>
                 <div class="reviews-section">
-                    <h2 class="reviews-title">Reviews</h2>
                     <div id="album-reviews"></div>
                 </div>
             </div>
         </div>
     </main>
 
+    <a href="about.html" class="about-link">about</a>
+
+    <!-- Search Overlay -->
+    <div id="search-overlay" class="search-overlay">
+        <button class="search-close" onclick="closeSearch()">×</button>
+        <div class="search-container">
+            <input type="text" class="search-input" placeholder="search albums, artists..." id="search-input-overlay">
+        </div>
+    </div>
+
     <script>
-        // API configuration
+        // backend connection config
         const API_BASE = 'http://localhost:8000';
         let currentAlbum = null;
         
@@ -478,25 +737,69 @@
                 setTimeout(() => {
                     document.getElementById(tabId).classList.add('active');
                     loadTabContent(tabId);
-                }, 100);
+                }, 150);
             });
         });
         
+        // Search overlay functions
+        function openSearch() {
+            document.getElementById('search-overlay').classList.add('active');
+            setTimeout(() => {
+                document.getElementById('search-input-overlay').focus();
+            }, 300);
+        }
+        
+        function closeSearch() {
+            document.getElementById('search-overlay').classList.remove('active');
+        }
+        
+        function showCreateMenu() {
+            console.log('Create menu - coming soon');
+        }
+        
+        function showProfile() {
+            // check stored user session
+            const userData = localStorage.getItem('waxfeed_user');
+            if (userData) {
+                const user = JSON.parse(userData);
+                alert(`Profile: ${user.username} (${user.email})`);
+                // TODO: Show profile modal/page
+            } else {
+                window.location.href = 'auth.html';
+            }
+        }
+        
+        function logout() {
+            localStorage.removeItem('waxfeed_user');
+            window.location.href = 'auth.html';
+        }
+        
         // Search with debouncing
         let searchTimeout;
-        document.getElementById('search-input').addEventListener('input', (e) => {
+        document.getElementById('search-input-overlay').addEventListener('input', (e) => {
             clearTimeout(searchTimeout);
             searchTimeout = setTimeout(() => {
                 const query = e.target.value.trim();
                 if (query.length >= 2) {
                     searchAlbums(query);
-                } else {
-                    loadTrendingAlbums();
+                    closeSearch();
+                    // Switch to trending tab to show results
+                    document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                    document.querySelector('[data-tab="trending"]').classList.add('active');
+                    document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+                    document.getElementById('trending').classList.add('active');
                 }
-            }, 300);
+            }, 400);
         });
         
-        // API functions
+        // Close search on Escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeSearch();
+            }
+        });
+        
+        // generic backend api caller
         async function fetchAPI(endpoint) {
             try {
                 const response = await fetch(`${API_BASE}${endpoint}`);
@@ -509,6 +812,7 @@
         }
         
         async function loadTrendingAlbums() {
+            // calls /trending/albums endpoint
             const albums = await fetchAPI('/trending/albums');
             if (albums) {
                 renderAlbums(albums, 'trending-albums');
@@ -516,13 +820,64 @@
         }
         
         async function searchAlbums(query) {
+            // calls /albums/search endpoint to search MusicBrainz
             const results = await fetchAPI(`/albums/search?q=${encodeURIComponent(query)}`);
             if (results) {
-                renderAlbums(results, 'trending-albums');
+                renderSearchResults(results, 'trending-albums');
+            }
+        }
+        
+        function renderSearchResults(searchResults, containerId) {
+            const container = document.getElementById(containerId);
+            
+            if (!searchResults || searchResults.length === 0) {
+                container.innerHTML = '<div class="loading">no albums found</div>';
+                return;
+            }
+            
+            container.innerHTML = searchResults.map((result, index) => `
+                <div class="album-card" onclick="addAlbumFromSearch('${result.mbid || ''}')" style="animation-delay: ${index * 0.05}s">
+                    <div class="album-left">
+                        <div class="album-cover" style="background-image: url('${result.cover_url}')">
+                            <div class="trending-number">${index + 1}</div>
+                        </div>
+                        <div class="album-info">
+                            <div class="album-title">${escapeHtml(result.title)}</div>
+                            <div class="album-artist">${escapeHtml(result.artist)}</div>
+                            <div class="album-meta">
+                                <div class="album-year">${result.release_date}</div>
+                                <div class="album-status">${result.in_database ? 'In Database' : 'From MusicBrainz'}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="add-button">${result.in_database ? 'View' : 'Add'}</div>
+                </div>
+            `).join('');
+        }
+        
+        async function addAlbumFromSearch(mbid) {
+            if (!mbid) return;
+            
+            try {
+                const response = await fetch(`${API_BASE}/albums/add-by-mbid/${mbid}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                if (response.ok) {
+                    alert('Album added to database!');
+                    loadTrendingAlbums(); // refresh trending
+                } else {
+                    alert('Failed to add album');
+                }
+            } catch (error) {
+                console.error('Error adding album:', error);
+                alert('Error adding album');
             }
         }
         
         async function loadAlbumDetail(albumId) {
+            // calls album and reviews endpoints
             const album = await fetchAPI(`/albums/${albumId}`);
             const reviews = await fetchAPI(`/albums/${albumId}/reviews`);
             
@@ -544,7 +899,7 @@
                 // Show album detail with animation
                 setTimeout(() => {
                     document.getElementById('album-detail').classList.add('active');
-                }, 100);
+                }, 150);
             }
         }
         
@@ -552,17 +907,26 @@
             const container = document.getElementById(containerId);
             
             if (!albums || albums.length === 0) {
-                container.innerHTML = '<div class="loading">No albums found</div>';
+                container.innerHTML = '<div class="loading">no albums found</div>';
                 return;
             }
             
             container.innerHTML = albums.map((album, index) => `
-                <div class="album-card" onclick="selectAlbum('${album.id}')" style="animation-delay: ${index * 0.1}s">
-                    <div class="album-cover" style="background-image: url('${album.cover_url}')"></div>
-                    <div class="album-info">
-                        <div class="album-title">${escapeHtml(album.title)}</div>
-                        <div class="album-artist">${escapeHtml(album.artist)}</div>
+                <div class="album-card" onclick="selectAlbum('${album.id}')" style="animation-delay: ${index * 0.05}s">
+                    <div class="album-left">
+                        <div class="album-cover" style="background-image: url('${album.cover_url}')">
+                            <div class="trending-number">${index + 1}</div>
+                        </div>
+                        <div class="album-info">
+                            <div class="album-title">${escapeHtml(album.title)}</div>
+                            <div class="album-artist">${escapeHtml(album.artist)}</div>
+                            <div class="album-meta">
+                                <div class="album-year">${album.release_date ? new Date(album.release_date).getFullYear() : ''}</div>
+                                ${album.runtime_minutes ? `<div class="album-runtime">${album.runtime_minutes} min</div>` : ''}
+                            </div>
+                        </div>
                     </div>
+                    ${album.average_rating ? `<div class="album-rating">${album.average_rating}/10</div>` : ''}
                 </div>
             `).join('');
         }
@@ -571,17 +935,17 @@
             const container = document.getElementById('album-reviews');
             
             if (!reviews || reviews.length === 0) {
-                container.innerHTML = '<div class="loading">No reviews yet</div>';
+                container.innerHTML = '<div class="loading">no reviews yet</div>';
                 return;
             }
             
             container.innerHTML = reviews.map(review => `
                 <div class="review">
                     <div class="review-header">
-                        <div class="review-user">${escapeHtml(review.user_name || 'Anonymous')}</div>
+                        <div class="review-user">${escapeHtml(review.user_name || 'anonymous')}</div>
                         <div class="review-rating">${review.rating ? `★ ${review.rating}/10` : ''}</div>
                     </div>
-                    <div class="review-text">${escapeHtml(review.review_text || 'No review text')}</div>
+                    <div class="review-text">${escapeHtml(review.review_text || 'no review text')}</div>
                 </div>
             `).join('');
         }
@@ -594,9 +958,6 @@
                 case 'friends':
                     // Load friends activity
                     break;
-                case 'profile':
-                    // Load profile content
-                    break;
             }
         }
         
@@ -608,7 +969,7 @@
             document.getElementById('album-detail').classList.remove('active');
             setTimeout(() => {
                 document.getElementById('trending').classList.add('active');
-            }, 100);
+            }, 150);
         }
         
         function escapeHtml(text) {
@@ -631,8 +992,17 @@
         
         window.addEventListener('scroll', animateOnScroll);
         
-        // Initialize
-        loadTrendingAlbums();
+        // protect page - redirect if not authenticated
+        window.addEventListener('load', () => {
+            const userData = localStorage.getItem('waxfeed_user');
+            if (!userData) {
+                window.location.href = 'auth.html';
+                return;
+            }
+            
+            // authenticated user can see content
+            loadTrendingAlbums();
+        });
     </script>
 </body>
 </html>

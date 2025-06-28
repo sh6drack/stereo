@@ -21,6 +21,9 @@ class Album(Base):
     artist = Column(String, nullable=False)
     release_date = Column(Date, nullable=False)
     cover_url = Column(String, nullable=False)
+    description = Column(String, nullable=True)  # album description from musicbrainz annotation
+    runtime_minutes = Column(Integer, nullable=True)  # total album runtime in minutes
+    musicbrainz_id = Column(String, nullable=True)  # musicbrainz release id for api calls
 
 
 class TrendingAlbum(Base):

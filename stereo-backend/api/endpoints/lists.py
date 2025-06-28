@@ -40,7 +40,7 @@ class AlbumSummary(BaseModel):
     cover_url: str
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class ListItemResponse(BaseModel):
     id: UUID
@@ -51,7 +51,7 @@ class ListItemResponse(BaseModel):
     album: AlbumSummary
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class ListResponse(BaseModel):
     id: UUID
@@ -65,7 +65,7 @@ class ListResponse(BaseModel):
     item_count: Optional[int] = None
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class ListDetailResponse(ListResponse):
     items: ListType[ListItemResponse] = []

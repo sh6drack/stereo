@@ -25,11 +25,22 @@ class UserResponse(BaseModel):
     created_at: date
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 @router.post("/register", response_model=UserResponse)
 def register_user(user: UserCreate, db: Session = Depends(get_db)):
     # registers a new user in the system
+    
+    # Check if username already exists
+    existing_username = db.query(User).filter(User.username == user.username).first()
+    if existing_username:
+        raise HTTPException(status_code=400, detail="Username already exists")
+    
+    # Check if email already exists
+    existing_email = db.query(User).filter(User.email == user.email).first()
+    if existing_email:
+        raise HTTPException(status_code=400, detail="Email already exists")
+    
     hashed_password = hash_password(user.password)
 
     db_user = User(
@@ -39,10 +50,15 @@ def register_user(user: UserCreate, db: Session = Depends(get_db)):
         password_hash=hashed_password,
         created_at=date.today()
     )
-    db.add(db_user)
-    db.commit()
-    db.refresh(db_user)
-    return db_user
+    
+    try:
+        db.add(db_user)
+        db.commit()
+        db.refresh(db_user)
+        return db_user
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Failed to create user")
 
 @router.post("/login")
 def login_user(user: UserCreate, db: Session = Depends(get_db)):

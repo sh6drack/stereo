@@ -1,9 +1,12 @@
 # manual seeding for testing
 
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+
 import uuid
 import requests
 import time
-import os
 from datetime import date
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
@@ -32,7 +35,7 @@ def get_cover_art_url(mbid: str) -> str:
     try:
         cover_response = requests.get(
             f"https://coverartarchive.org/release/{mbid}",
-            headers={"User-Agent": "StereoApp/1.0 (kingpharoah19@gmail.com)"},
+            headers={"User-Agent": "WaxfeedApp/1.0 (kingpharoah19@gmail.com)"},
             timeout=5
         )
         if cover_response.status_code == 200:
@@ -45,6 +48,45 @@ def get_cover_art_url(mbid: str) -> str:
     except Exception:
         pass
     return "https://via.placeholder.com/500x500?text=No+Cover+Art"
+
+def get_album_annotation(mbid: str) -> str:
+    # gets album description from musicbrainz annotation
+    try:
+        annotation_response = requests.get(
+            f"https://musicbrainz.org/ws/2/release/{mbid}",
+            params={"inc": "annotation", "fmt": "json"},
+            headers={"User-Agent": "WaxfeedApp/1.0 (kingpharoah19@gmail.com)"},
+            timeout=5
+        )
+        if annotation_response.status_code == 200:
+            annotation_data = annotation_response.json()
+            return annotation_data.get('annotation', '')
+    except Exception:
+        pass
+    return ''
+
+def get_album_runtime(mbid: str) -> int | None:
+    # gets total album runtime in minutes from recordings
+    try:
+        recordings_response = requests.get(
+            f"https://musicbrainz.org/ws/2/release/{mbid}",
+            params={"inc": "recordings", "fmt": "json"},
+            headers={"User-Agent": "WaxfeedApp/1.0 (kingpharoah19@gmail.com)"},
+            timeout=10
+        )
+        if recordings_response.status_code == 200:
+            data = recordings_response.json()
+            total_ms = 0
+            if 'media' in data:
+                for medium in data['media']:
+                    if 'tracks' in medium:
+                        for track in medium['tracks']:
+                            if 'recording' in track and 'length' in track['recording']:
+                                total_ms += int(track['recording']['length'])
+            return total_ms // 60000  # convert ms to minutes
+    except Exception:
+        pass
+    return None
 
 def parse_release_date(date_str: str) -> date:
     # parses various date formats
@@ -99,7 +141,7 @@ def seed_popular_albums():
             response = requests.get(
                 "https://musicbrainz.org/ws/2/release",
                 params={"query": query, "fmt": "json", "limit": 1},
-                headers={"User-Agent": "StereoApp/1.0 (kingpharoah19@gmail.com)"},
+                headers={"User-Agent": "WaxfeedApp/1.0 (kingpharoah19@gmail.com)"},
                 timeout=10
             )
             
@@ -120,13 +162,18 @@ def seed_popular_albums():
                         artist_name = release['artist-credit'][0]['artist']['name'] if release.get('artist-credit') else "Unknown Artist"
                         cover_url = get_cover_art_url(release['id'])
                         release_date = parse_release_date(release.get('date', 'Unknown'))
+                        description = get_album_annotation(release['id'])
+                        runtime = get_album_runtime(release['id'])
                         
                         album = Album(
                             id=uuid.uuid4(),
                             title=release['title'],
                             artist=artist_name,
                             release_date=release_date,
-                            cover_url=cover_url
+                            cover_url=cover_url,
+                            description=description,
+                            runtime_minutes=runtime,
+                            musicbrainz_id=release['id']
                         )
                         
                         session.add(album)

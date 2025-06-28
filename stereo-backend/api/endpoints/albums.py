@@ -27,9 +27,13 @@ class AlbumResponse(BaseModel):  # what client receives
     artist: str
     release_date: date
     cover_url: str
+    description: str | None = None
+    runtime_minutes: int | None = None
+    musicbrainz_id: str | None = None
+    average_rating: float | None = None
 
     class Config:
-        orm_mode = True 
+        from_attributes = True 
 
 class TrendingAlbumCreate(BaseModel):
     album_id: UUID
@@ -43,7 +47,7 @@ class TrendingAlbumResponse(BaseModel):
     week_start: date
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class AlbumSearchResult(BaseModel):
     mbid: str | None = None  # musicbrainz id if from api
@@ -52,6 +56,106 @@ class AlbumSearchResult(BaseModel):
     release_date: str
     cover_url: str | None = None
     in_database: bool  # true if already in database
+
+def search_musicbrainz_api(query: str, limit: int = 10):
+    # searches musicbrainz api and returns album data
+    url = "https://musicbrainz.org/ws/2/release"
+    params = {
+        "query": query,
+        "fmt": "json",
+        "limit": limit
+    }
+    headers = {
+        "User-Agent": "WaxfeedApp/1.0 (kingpharoah19@gmail.com)"
+    }
+    
+    try:
+        response = requests.get(url, params=params, headers=headers, timeout=10)
+        response.raise_for_status()
+        data = response.json()
+        
+        results = []
+        for release in data.get('releases', []):
+            # get cover art with proper fallback
+            cover_url = get_cover_art_url(release['id'])
+            
+            result = AlbumSearchResult(
+                mbid=release['id'],
+                title=release['title'],
+                artist=release['artist-credit'][0]['artist']['name'] if release.get('artist-credit') else "Unknown Artist",
+                release_date=release.get('date', 'Unknown'),
+                cover_url=cover_url,
+                in_database=False
+            )
+            results.append(result)
+        
+        return results
+    except requests.RequestException as e:
+        print(f"MusicBrainz API error: {e}")
+        return []
+
+def get_cover_art_url(mbid: str) -> str:
+    # gets cover art from cover art archive
+    try:
+        response = requests.get(
+            f"https://coverartarchive.org/release/{mbid}",
+            headers={"User-Agent": "WaxfeedApp/1.0 (kingpharoah19@gmail.com)"},
+            timeout=5
+        )
+        if response.status_code == 200:
+            data = response.json()
+            if data.get('images'):
+                for image in data['images']:
+                    if image.get('front', False):
+                        return image['image']
+                return data['images'][0]['image']
+    except Exception:
+        pass
+    return "https://via.placeholder.com/500x500?text=No+Cover+Art"
+
+@router.get("/search", response_model=List[AlbumSearchResult])
+def search_albums(q: str, db: Session = Depends(get_db)):
+    """
+    Search for albums in local database and MusicBrainz
+    """
+    if not q or len(q.strip()) < 2:
+        raise HTTPException(status_code=400, detail="Search query must be at least 2 characters")
+    
+    search_term = q.strip().lower()
+    
+    # 1. Search local database first
+    local_albums = db.query(Album).filter(
+        (Album.title.ilike(f"%{search_term}%")) | 
+        (Album.artist.ilike(f"%{search_term}%"))
+    ).limit(10).all()
+    
+    # Convert local results to search results
+    local_results = []
+    for album in local_albums:
+        result = AlbumSearchResult(
+            mbid=getattr(album, 'musicbrainz_id', None),
+            title=str(album.title),
+            artist=str(album.artist),
+            release_date=str(album.release_date),
+            cover_url=str(album.cover_url),
+            in_database=True
+        )
+        local_results.append(result)
+    
+    # 2. If we have fewer than 10 results, search MusicBrainz
+    if len(local_results) < 10:
+        api_results = search_musicbrainz_api(q, limit=10 - len(local_results))
+        
+        # Filter out albums that are already in local results
+        local_titles = {(album.title.lower(), album.artist.lower()) for album in local_albums}
+        filtered_api_results = [
+            result for result in api_results 
+            if (result.title.lower(), result.artist.lower()) not in local_titles
+        ]
+        
+        return local_results + filtered_api_results
+    
+    return local_results
 
 @router.get("/{album_id}", response_model=AlbumResponse)
 def get_album(album_id: UUID, db: Session = Depends(get_db)):
@@ -108,111 +212,6 @@ def get_album_average_rating(album_id: UUID, db: Session = Depends(get_db)):
     avg_rating = db.query(func.avg(Rating.rating)).filter(Rating.album_id == album_id).scalar()
     return {"average_rating": avg_rating or 0}  # 0 if no ratings exist
 
-def get_cover_art_url(mbid: str) -> str:
-    # fetches cover art from archive with fallback to placeholder
-    try:
-        cover_response = requests.get(
-            f"https://coverartarchive.org/release/{mbid}",
-            headers={"User-Agent": "StereoApp/1.0 (kingpharoah19@gmail.com)"},
-            timeout=5
-        )
-        if cover_response.status_code == 200:
-            cover_data = cover_response.json()
-            if cover_data.get('images'):
-                # get the front cover or first image
-                for image in cover_data['images']:
-                    if image.get('front', False):
-                        return image['image']
-                # if no front cover, use first image
-                return cover_data['images'][0]['image']
-    except Exception:
-        pass  # fall through to placeholder
-    
-    return "https://via.placeholder.com/500x500?text=No+Cover+Art"
-
-def search_musicbrainz_api(query: str, limit: int = 10):
-    # queries musicbrainz api for album releases with cover art integration
-    url = "https://musicbrainz.org/ws/2/release"
-    params = {
-        "query": query,
-        "fmt": "json",
-        "limit": limit
-    }
-    headers = {
-        "User-Agent": "StereoApp/1.0 (kingpharoah19@gmail.com)"
-    }
-    
-    try:
-        response = requests.get(url, params=params, headers=headers, timeout=10)
-        response.raise_for_status()
-        data = response.json()
-        
-        results = []
-        for release in data.get('releases', []):
-            # get cover art with proper fallback
-            cover_url = get_cover_art_url(release['id'])
-            
-            result = AlbumSearchResult(
-                mbid=release['id'],
-                title=release['title'],
-                artist=release['artist-credit'][0]['artist']['name'] if release.get('artist-credit') else "Unknown Artist",
-                release_date=release.get('date', 'Unknown'),
-                cover_url=cover_url,
-                in_database=False
-            )
-            results.append(result)
-        
-        return results
-    except requests.RequestException as e:
-        print(f"Error searching MusicBrainz: {e}")
-        return []
-    except Exception as e:
-        print(f"Unexpected error: {e}")
-        return []
-    
-@router.get("/search", response_model=List[AlbumSearchResult])
-def search_albums(q: str, db: Session = Depends(get_db)):
-    """
-    Search for albums in local database and MusicBrainz
-    """
-    if not q or len(q.strip()) < 2:
-        raise HTTPException(status_code=400, detail="Search query must be at least 2 characters")
-    
-    search_term = q.strip().lower()
-    
-    # 1. Search local database first
-    local_albums = db.query(Album).filter(
-        (Album.title.ilike(f"%{search_term}%")) | 
-        (Album.artist.ilike(f"%{search_term}%"))
-    ).limit(10).all()
-    
-    # Convert local results to search results
-    local_results = []
-    for album in local_albums:
-        result = AlbumSearchResult(
-            mbid=None,  # local albums might not have mbid stored
-            title=str(album.title),
-            artist=str(album.artist),
-            release_date=str(album.release_date),
-            cover_url=str(album.cover_url),
-            in_database=True
-        )
-        local_results.append(result)
-    
-    # 2. If we have fewer than 10 results, search MusicBrainz
-    if len(local_results) < 10:
-        api_results = search_musicbrainz_api(q, limit=10 - len(local_results))
-        
-        # Filter out albums that are already in local results
-        local_titles = {(album.title.lower(), album.artist.lower()) for album in local_albums}
-        filtered_api_results = [
-            result for result in api_results 
-            if (result.title.lower(), result.artist.lower()) not in local_titles
-        ]
-        
-        return local_results + filtered_api_results
-    
-    return local_results
 
 def parse_release_date(date_str: str) -> date:
     # handles incomplete musicbrainz dates with graceful fallbacks
@@ -274,7 +273,7 @@ def add_album_by_mbid(mbid: str, db: Session = Depends(get_db)):
         response = requests.get(
             f"https://musicbrainz.org/ws/2/release/{mbid}",
             params={"fmt": "json"},
-            headers={"User-Agent": "StereoApp/1.0 (kingpharoah19@gmail.com)"},
+            headers={"User-Agent": "WaxfeedApp/1.0 (kingpharoah19@gmail.com)"},
             timeout=10
         )
         response.raise_for_status()

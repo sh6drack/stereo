@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>about - waxfeed</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #000;
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 300;
+            padding: 40px;
+        }
+        
+        .about-container {
+            max-width: 600px;
+            text-align: center;
+        }
+        
+        .logo-section {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            margin-bottom: 48px;
+        }
+        
+        .logo-dots {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            animation: pulse 3s ease-in-out infinite;
+        }
+        
+        .dot-red { background: #ff3333; }
+        .dot-green { background: #33ff33; animation-delay: 0.4s; }
+        .dot-blue { background: #3333ff; animation-delay: 0.8s; }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 0.4; transform: scale(0.9); }
+            50% { opacity: 1; transform: scale(1.1); }
+        }
+        
+        .logo {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 28px;
+            font-weight: 400;
+        }
+        
+        .about-content {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 40px;
+        }
+        
+        .back-link {
+            color: rgba(255, 255, 255, 0.5);
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.3s ease;
+        }
+        
+        .back-link:hover {
+            color: rgba(255, 255, 255, 0.8);
+        }
+    </style>
+</head>
+<body>
+    <div class="about-container">
+        <div class="logo-section">
+            <div class="logo-dots">
+                <div class="dot dot-red"></div>
+                <div class="dot dot-green"></div>
+                <div class="dot dot-blue"></div>
+            </div>
+            <div class="logo">waxfeed</div>
+        </div>
+        
+        <div class="about-content">
+            <!-- fill in about content here -->
+        </div>
+        
+        <a href="index.html" class="back-link">← back to waxfeed</a>
+    </div>
+</body>
+</html>
