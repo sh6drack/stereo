@@ -4,7 +4,7 @@ from typing import List
 from uuid import UUID
 import uuid
 from datetime import date
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from database.database import get_db
 from database.models import Album, Rating
@@ -15,13 +15,13 @@ router = APIRouter(prefix="/ratings", tags=["ratings"])
 class RatingCreate(BaseModel):
     album_id: UUID
     user_id: UUID
-    rating: int
+    rating: int = Field(..., ge=1, le=10, description="Rating must be between 1 and 10")
 
 class RatingResponse(BaseModel):
     id: UUID
     album_id: UUID
     user_id: UUID
-    rating: int
+    rating: int = Field(..., ge=1, le=10)
 
     class Config:
         orm_mode = True

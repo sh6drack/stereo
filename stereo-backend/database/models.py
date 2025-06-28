@@ -1,7 +1,7 @@
 import uuid
 #uuid is a python library for generating unique identifiers
 from datetime import date # date class for date values
-from sqlalchemy import Column, String, Integer, Date, ForeignKey
+from sqlalchemy import Column, String, Integer, Date, ForeignKey, Boolean, UniqueConstraint
 
 from sqlalchemy.dialects.postgresql import UUID #postgresql uuid
 from .database import Base
@@ -58,3 +58,26 @@ class Rating(Base):
     rating = Column(Integer, nullable=False)  # 1-10 rating for the album
     created_at = Column(Date, default=date.today, nullable=False)  # Date when the rating was created
     updated_at = Column(Date, nullable=True)  # Date when the rating was last updated
+
+class List(Base):
+    __tablename__ = "lists"
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+    title = Column(String, nullable=False)  
+    description = Column(String, nullable=True)  # optional description
+    is_public = Column(Boolean, default=True)  # oublic or private list
+    is_ranked = Column(Boolean, default=False)  #  (top 10 vs just collection)
+    created_at = Column(Date, default=date.today)
+    updated_at = Column(Date, nullable=True)
+
+class ListItem(Base):
+    __tablename__ = "list_items"
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    list_id = Column(UUID(as_uuid=True), ForeignKey("lists.id"), nullable=False)
+    album_id = Column(UUID(as_uuid=True), ForeignKey("albums.id"), nullable=False)
+    position = Column(Integer, nullable=True)  #  ranked lists (1, 2, 3...), null for unranked
+    notes = Column(String, nullable=True)  # Optional note about why this album is on the list
+    added_at = Column(Date, default=date.today)
+
+    # Ensure unique album per list (can't add same album twice to one list)
+    __table_args__ = (UniqueConstraint('list_id', 'album_id'),)

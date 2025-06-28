@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from database.database import engine
 from database import models
-from api.endpoints import albums, trending, users, reviews, ratings, search
+from api.endpoints import albums, trending, users, reviews, ratings, search, lists
 
 models.Base.metadata.create_all(bind=engine) #bind=engine connects the metadata to the database engine
 
@@ -13,3 +13,4 @@ app.include_router(users.router)
 app.include_router(reviews.router)
 app.include_router(ratings.router)
 app.include_router(search.router)
+app.include_router(lists.router)
