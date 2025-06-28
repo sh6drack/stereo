@@ -113,7 +113,7 @@ def get_cover_art_url(mbid: str) -> str:
     try:
         cover_response = requests.get(
             f"https://coverartarchive.org/release/{mbid}",
-            headers={"User-Agent": "StereoApp/1.0 (stereo@example.com)"},
+            headers={"User-Agent": "StereoApp/1.0 (kingpharoah19@gmail.com)"},
             timeout=5
         )
         if cover_response.status_code == 200:
@@ -139,7 +139,7 @@ def search_musicbrainz_api(query: str, limit: int = 10):
         "limit": limit
     }
     headers = {
-        "User-Agent": "StereoApp/1.0 (stereo@example.com)"
+        "User-Agent": "StereoApp/1.0 (kingpharoah19@gmail.com)"
     }
     
     try:
@@ -274,7 +274,7 @@ def add_album_by_mbid(mbid: str, db: Session = Depends(get_db)):
         response = requests.get(
             f"https://musicbrainz.org/ws/2/release/{mbid}",
             params={"fmt": "json"},
-            headers={"User-Agent": "StereoApp/1.0 (stereo@example.com)"},
+            headers={"User-Agent": "StereoApp/1.0 (kingpharoah19@gmail.com)"},
             timeout=10
         )
         response.raise_for_status()

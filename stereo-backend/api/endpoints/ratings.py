@@ -56,10 +56,10 @@ def update_rating(rating_id: UUID, rating: RatingCreate, db: Session = Depends(g
     if not db_rating:
         raise HTTPException(status_code=404, detail="Rating not found")
     
-    db_rating.album_id = rating.album_id
-    db_rating.user_id = rating.user_id
-    db_rating.rating = rating.rating
-    db_rating.updated_at = date.today()
+    setattr(db_rating, 'album_id', rating.album_id)
+    setattr(db_rating, 'user_id', rating.user_id)
+    setattr(db_rating, 'rating', rating.rating)
+    setattr(db_rating, 'updated_at', date.today())
     
     db.commit()
     db.refresh(db_rating)
@@ -86,8 +86,8 @@ def rate_album(album_id: UUID, rating_value: int, user_id: UUID, db: Session = D
     
     if existing_rating:
         # update existing rating
-        existing_rating.rating = rating_value
-        existing_rating.updated_at = date.today()
+        setattr(existing_rating, 'rating', rating_value)
+        setattr(existing_rating, 'updated_at', date.today())
         db.commit()
         db.refresh(existing_rating)
         return existing_rating

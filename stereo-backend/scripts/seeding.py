@@ -32,7 +32,7 @@ def get_cover_art_url(mbid: str) -> str:
     try:
         cover_response = requests.get(
             f"https://coverartarchive.org/release/{mbid}",
-            headers={"User-Agent": "StereoApp/1.0 (stereo@example.com)"},
+            headers={"User-Agent": "StereoApp/1.0 (kingpharoah19@gmail.com)"},
             timeout=5
         )
         if cover_response.status_code == 200:
@@ -99,7 +99,7 @@ def seed_popular_albums():
             response = requests.get(
                 "https://musicbrainz.org/ws/2/release",
                 params={"query": query, "fmt": "json", "limit": 1},
-                headers={"User-Agent": "StereoApp/1.0 (stereo@example.com)"},
+                headers={"User-Agent": "StereoApp/1.0 (kingpharoah19@gmail.com)"},
                 timeout=10
             )
             
