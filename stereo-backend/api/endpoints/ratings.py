@@ -68,7 +68,7 @@ def update_rating(rating_id: UUID, rating: RatingCreate, db: Session = Depends(g
 
 @router.post("/albums/{album_id}/rate", response_model=RatingResponse)
 def rate_album(album_id: UUID, rating_value: int, user_id: UUID, db: Session = Depends(get_db)):
-    # rates an album with simplified endpoint
+    # updates existing rating or creates new one for user-album pair
     # rating must be between 1-10
     if rating_value < 1 or rating_value > 10:
         raise HTTPException(status_code=400, detail="Rating must be between 1 and 10")

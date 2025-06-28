@@ -53,8 +53,8 @@ def unified_search(
     total_users = user_query.count()
     
     return UnifiedSearchResult(
-        albums=[AlbumResponse.from_orm(album) for album in albums],
-        users=[UserResponse.from_orm(user) for user in users],
+        albums=[AlbumResponse.model_validate(album) for album in albums],
+        users=[UserResponse.model_validate(user) for user in users],
         total_albums=total_albums,
         total_users=total_users
     )
@@ -91,7 +91,7 @@ def search_albums_advanced(
     if year_to:
         query = query.filter(func.extract('year', Album.release_date) <= year_to)
     
-    # join with ratings for rating-based filters and sorting
+    # combines album and rating data for advanced filtering and sorting
     if min_rating or max_rating or sort_by in ["rating", "popularity"]:
         query = query.outerjoin(Rating, Album.id == Rating.album_id)
         
@@ -121,7 +121,7 @@ def search_albums_advanced(
     elif sort_by == "popularity":
         query = query.group_by(Album.id).order_by(desc(func.count(Rating.id)))
     else:  # relevance (default)
-        # simple relevance: exact title matches first, then artist matches
+        # prioritizes exact prefix matches over partial matches
         query = query.order_by(
             Album.title.ilike(f"{search_term}%").desc(),
             Album.artist.ilike(f"{search_term}%").desc(),
@@ -144,6 +144,7 @@ def search_users(
         (User.username.ilike(f"%{search_term}%")) |
         (User.email.ilike(f"%{search_term}%"))
     ).order_by(
+        # prioritizes exact username prefix matches
         User.username.ilike(f"{search_term}%").desc(),
         User.username
     ).offset(offset).limit(limit).all()
@@ -180,8 +181,8 @@ def search_suggestions(
 
 @router.get("/trending-searches")
 def trending_searches(db: Session = Depends(get_db)):
-    # returns popular search terms (mock implementation)
-    # in real app, you'd track search queries and return most frequent
+    # provides trending content based on rating activity until real tracking implemented
+    # would track search queries and return most frequent
     popular_artists = db.query(
         Album.artist,
         func.count(Rating.id).label('rating_count')

@@ -1,0 +1,32 @@
+{
+  "name": "stereo",
+  "version": "1.0.0",
+  "description": "FastAPI-based music rating and review platform with MusicBrainz integration.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sh6drack/Stereo.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sh6drack/Stereo/issues"
+  },
+  "homepage": "https://github.com/sh6drack/Stereo#readme",
+  "dependencies": {
+    "@tanstack/react-query": "^5.81.5",
+    "axios": "^1.10.0",
+    "next.js": "^1.0.3",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.1.11"
+  }
+}

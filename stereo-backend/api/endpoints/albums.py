@@ -109,7 +109,7 @@ def get_album_average_rating(album_id: UUID, db: Session = Depends(get_db)):
     return {"average_rating": avg_rating or 0}  # 0 if no ratings exist
 
 def get_cover_art_url(mbid: str) -> str:
-    # tries to get cover art from cover art archive, falls back to placeholder
+    # fetches cover art from archive with fallback to placeholder
     try:
         cover_response = requests.get(
             f"https://coverartarchive.org/release/{mbid}",
@@ -131,7 +131,7 @@ def get_cover_art_url(mbid: str) -> str:
     return "https://via.placeholder.com/500x500?text=No+Cover+Art"
 
 def search_musicbrainz_api(query: str, limit: int = 10):
-    # searches for albums in the musicbrainz api
+    # queries musicbrainz api for album releases with cover art integration
     url = "https://musicbrainz.org/ws/2/release"
     params = {
         "query": query,
@@ -215,7 +215,7 @@ def search_albums(q: str, db: Session = Depends(get_db)):
     return local_results
 
 def parse_release_date(date_str: str) -> date:
-    # parses various date formats from musicbrainz
+    # handles incomplete musicbrainz dates with graceful fallbacks
     if not date_str or date_str == 'Unknown':
         return date(2020, 1, 1)  # fallback
     
@@ -238,7 +238,7 @@ def parse_release_date(date_str: str) -> date:
 
 @router.post("/add-from-search", response_model=AlbumResponse)
 def add_album_from_search(album_data: AlbumSearchResult, db: Session = Depends(get_db)):
-    # adds an album to the database from search results
+    # prevents duplicates when adding albums from search results
     # check if album already exists
     existing_album = db.query(Album).filter(
         Album.title.ilike(album_data.title),
@@ -268,7 +268,7 @@ def add_album_from_search(album_data: AlbumSearchResult, db: Session = Depends(g
 
 @router.post("/add-by-mbid/{mbid}", response_model=AlbumResponse)
 def add_album_by_mbid(mbid: str, db: Session = Depends(get_db)):
-    # adds an album to database by musicbrainz id
+    # fetches full album data from musicbrainz and adds to database
     try:
         # get album details from musicbrainz
         response = requests.get(

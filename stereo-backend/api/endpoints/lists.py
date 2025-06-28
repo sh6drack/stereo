@@ -40,7 +40,7 @@ class AlbumSummary(BaseModel):
     cover_url: str
 
     class Config:
-        from_attributes = True
+        orm_mode = True
 
 class ListItemResponse(BaseModel):
     id: UUID
@@ -51,7 +51,7 @@ class ListItemResponse(BaseModel):
     album: AlbumSummary
 
     class Config:
-        from_attributes = True
+        orm_mode = True
 
 class ListResponse(BaseModel):
     id: UUID
@@ -65,7 +65,7 @@ class ListResponse(BaseModel):
     item_count: Optional[int] = None
 
     class Config:
-        from_attributes = True
+        orm_mode = True
 
 class ListDetailResponse(ListResponse):
     items: ListType[ListItemResponse] = []
@@ -83,7 +83,7 @@ def get_lists(
         query = query.filter(List.user_id == user_id)
     
     if public_only:
-        query = query.filter(List.is_public == True)
+        query = query.filter(List.is_public.is_(True))
     
     lists = query.order_by(List.created_at.desc()).all()
     
@@ -103,40 +103,24 @@ def get_list(list_id: UUID, db: Session = Depends(get_db)):
     # Get list items with album details, ordered by position if ranked
     items_query = db.query(ListItem).filter(ListItem.list_id == list_id).join(Album)
     
-    if list_obj.is_ranked:
+    if getattr(list_obj, 'is_ranked', False):
         items_query = items_query.order_by(ListItem.position.nulls_last(), ListItem.added_at)
     else:
         items_query = items_query.order_by(ListItem.added_at.desc())
     
     items = items_query.all()
     
-    # Convert to response format
-    list_response = ListDetailResponse(
-        id=list_obj.id,
-        user_id=list_obj.user_id,
-        title=list_obj.title,
-        description=list_obj.description,
-        is_public=list_obj.is_public,
-        is_ranked=list_obj.is_ranked,
-        created_at=list_obj.created_at,
-        updated_at=list_obj.updated_at,
-        item_count=len(items),
-        items=[
-            ListItemResponse(
-                id=item.id,
-                album_id=item.album_id,
-                position=item.position,
-                notes=item.notes,
-                added_at=item.added_at,
-                album=AlbumSummary(
-                    id=item.album.id,
-                    title=item.album.title,
-                    artist=item.album.artist,
-                    cover_url=item.album.cover_url
-                )
-            ) for item in items
+    # Convert to response format using from_orm
+    list_response = ListDetailResponse.model_validate({
+        **list_obj.__dict__,
+        'item_count': len(items),
+        'items': [
+            {
+                **item.__dict__,
+                'album': item.album.__dict__
+            } for item in items
         ]
-    )
+    })
     
     return list_response
 
@@ -172,7 +156,8 @@ def update_list(list_id: UUID, list_data: ListUpdate, user_id: UUID, db: Session
     if not list_obj:
         raise HTTPException(status_code=404, detail="List not found")
     
-    if list_obj.user_id != user_id:
+    # ensures user owns the resource before modification
+    if getattr(list_obj, 'user_id') != user_id:
         raise HTTPException(status_code=403, detail="You can only update your own lists")
     
     # Update fields if provided
@@ -200,7 +185,8 @@ def delete_list(list_id: UUID, user_id: UUID, db: Session = Depends(get_db)):
     if not list_obj:
         raise HTTPException(status_code=404, detail="List not found")
     
-    if list_obj.user_id != user_id:
+    # ensures user owns the resource before modification
+    if getattr(list_obj, 'user_id') != user_id:
         raise HTTPException(status_code=403, detail="You can only delete your own lists")
     
     # Delete all list items first (cascade)
@@ -225,7 +211,8 @@ def add_item_to_list(
     if not list_obj:
         raise HTTPException(status_code=404, detail="List not found")
     
-    if list_obj.user_id != user_id:
+    # ensures user owns the resource before modification
+    if getattr(list_obj, 'user_id') != user_id:
         raise HTTPException(status_code=403, detail="You can only add items to your own lists")
     
     # Check if album exists
@@ -240,9 +227,9 @@ def add_item_to_list(
     if existing_item:
         raise HTTPException(status_code=400, detail="Album is already in this list")
     
-    # For ranked lists, auto-assign position if not provided
+    # auto-assigns next position for ranked lists when not specified
     position = item_data.position
-    if list_obj.is_ranked and position is None:
+    if getattr(list_obj, 'is_ranked', False) and position is None:
         max_position = db.query(ListItem.position).filter(ListItem.list_id == list_id).order_by(ListItem.position.desc()).first()
         position = (max_position[0] + 1) if max_position and max_position[0] else 1
     
@@ -263,19 +250,10 @@ def add_item_to_list(
     db.commit()
     db.refresh(new_item)
     
-    return ListItemResponse(
-        id=new_item.id,
-        album_id=new_item.album_id,
-        position=new_item.position,
-        notes=new_item.notes,
-        added_at=new_item.added_at,
-        album=AlbumSummary(
-            id=album.id,
-            title=album.title,
-            artist=album.artist,
-            cover_url=album.cover_url
-        )
-    )
+    return ListItemResponse.model_validate({
+        **new_item.__dict__,
+        'album': album.__dict__
+    })
 
 @router.put("/{list_id}/items/{item_id}", response_model=ListItemResponse)
 def update_list_item(
@@ -291,7 +269,8 @@ def update_list_item(
     if not list_obj:
         raise HTTPException(status_code=404, detail="List not found")
     
-    if list_obj.user_id != user_id:
+    # ensures user owns the resource before modification
+    if getattr(list_obj, 'user_id') != user_id:
         raise HTTPException(status_code=403, detail="You can only update items in your own lists")
     
     # Get the list item
@@ -316,19 +295,10 @@ def update_list_item(
     # Get album details for response
     album = db.query(Album).filter(Album.id == item.album_id).first()
     
-    return ListItemResponse(
-        id=item.id,
-        album_id=item.album_id,
-        position=item.position,
-        notes=item.notes,
-        added_at=item.added_at,
-        album=AlbumSummary(
-            id=album.id,
-            title=album.title,
-            artist=album.artist,
-            cover_url=album.cover_url
-        )
-    )
+    return ListItemResponse.model_validate({
+        **item.__dict__,
+        'album': album.__dict__
+    })
 
 @router.delete("/{list_id}/items/{item_id}")
 def remove_item_from_list(
@@ -343,7 +313,8 @@ def remove_item_from_list(
     if not list_obj:
         raise HTTPException(status_code=404, detail="List not found")
     
-    if list_obj.user_id != user_id:
+    # ensures user owns the resource before modification
+    if getattr(list_obj, 'user_id') != user_id:
         raise HTTPException(status_code=403, detail="You can only remove items from your own lists")
     
     # Get the list item
@@ -366,7 +337,7 @@ def remove_item_from_list(
 def get_user_lists(user_id: UUID, db: Session = Depends(get_db)):
     """Get all public lists for a specific user"""
     lists = db.query(List).filter(
-        and_(List.user_id == user_id, List.is_public == True)
+        and_(List.user_id == user_id, List.is_public.is_(True))
     ).order_by(List.created_at.desc()).all()
     
     # Add item count to each list

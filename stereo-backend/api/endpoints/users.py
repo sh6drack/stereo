@@ -51,7 +51,7 @@ def login_user(user: UserCreate, db: Session = Depends(get_db)):
     if not db_user or not verify_password(user.password, db_user.password_hash):
         raise HTTPException(status_code=401, detail="Invalid email or password")
     
-    return UserResponse.from_orm(db_user)
+    return UserResponse.model_validate(db_user)
 
 @router.get("/profile/{user_id}", response_model=UserResponse)
 def get_user_profile(user_id: UUID, db: Session = Depends(get_db)):
@@ -60,4 +60,4 @@ def get_user_profile(user_id: UUID, db: Session = Depends(get_db)):
     if not db_user:
         raise HTTPException(status_code=404, detail="User not found")
     
-    return UserResponse.from_orm(db_user)
+    return UserResponse.model_validate(db_user)

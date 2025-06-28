@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Waxfeed</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Noto Sans', sans-serif;
+            background: #000;
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 32px;
+        }
+        
+        header {
+            padding: 24px 0 48px 0;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .logo-dots {
+            display: flex;
+            gap: 6px;
+        }
+        
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        .dot-red { background: #ff4444; }
+        .dot-green { background: #44ff44; animation-delay: 0.3s; }
+        .dot-blue { background: #4444ff; animation-delay: 0.6s; }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 0.6; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.1); }
+        }
+        
+        .logo {
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+        
+        nav {
+            display: flex;
+            gap: 48px;
+        }
+        
+        .nav-link {
+            color: #666;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .nav-link:hover,
+        .nav-link.active {
+            color: #fff;
+        }
+        
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #fff;
+            transform: scaleX(0);
+            animation: slideIn 0.3s ease forwards;
+        }
+        
+        @keyframes slideIn {
+            to { transform: scaleX(1); }
+        }
+        
+        main {
+            min-height: calc(100vh - 120px);
+        }
+        
+        .tab-content {
+            display: none;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.4s ease;
+        }
+        
+        .tab-content.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .section-title {
+            font-size: 32px;
+            font-weight: 600;
+            margin-bottom: 32px;
+            letter-spacing: -0.02em;
+            opacity: 0;
+            animation: fadeInUp 0.6s ease forwards;
+        }
+        
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+        }
+        
+        .search-container {
+            margin-bottom: 48px;
+        }
+        
+        .search-input {
+            width: 100%;
+            max-width: 500px;
+            padding: 16px 24px;
+            background: rgba(255, 255, 255, 0.05);
+            border: none;
+            border-radius: 12px;
+            color: #fff;
+            font-family: inherit;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.08);
+            transform: scale(1.02);
+        }
+        
+        .search-input::placeholder {
+            color: #666;
+        }
+        
+        .album-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 24px;
+            margin-top: 32px;
+        }
+        
+        .album-card {
+            background: transparent;
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            opacity: 0;
+            animation: fadeInStagger 0.6s ease forwards;
+        }
+        
+        .album-card:nth-child(1) { animation-delay: 0.1s; }
+        .album-card:nth-child(2) { animation-delay: 0.2s; }
+        .album-card:nth-child(3) { animation-delay: 0.3s; }
+        .album-card:nth-child(4) { animation-delay: 0.4s; }
+        .album-card:nth-child(5) { animation-delay: 0.5s; }
+        .album-card:nth-child(n+6) { animation-delay: 0.6s; }
+        
+        @keyframes fadeInStagger {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+        }
+        
+        .album-card:hover {
+            transform: translateY(-8px) scale(1.02);
+        }
+        
+        .album-cover {
+            width: 100%;
+            aspect-ratio: 1;
+            background: #111;
+            background-size: cover;
+            background-position: center;
+            transition: all 0.4s ease;
+        }
+        
+        .album-card:hover .album-cover {
+            filter: brightness(1.1);
+        }
+        
+        .album-info {
+            padding: 20px 0;
+        }
+        
+        .album-title {
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 6px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .album-artist {
+            color: #888;
+            font-size: 14px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        /* Album Detail View */
+        .album-detail {
+            display: none;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .album-detail.active {
+            display: block;
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        .album-header {
+            display: flex;
+            gap: 32px;
+            margin-bottom: 48px;
+        }
+        
+        .album-cover-large {
+            width: 300px;
+            height: 300px;
+            background: #111;
+            background-size: cover;
+            background-position: center;
+            border-radius: 12px;
+            flex-shrink: 0;
+        }
+        
+        .album-meta {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 16px;
+        }
+        
+        .album-title-large {
+            font-size: 36px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+        
+        .album-artist-large {
+            font-size: 20px;
+            color: #888;
+            font-weight: 500;
+        }
+        
+        .album-year {
+            font-size: 16px;
+            color: #666;
+        }
+        
+        .back-button {
+            background: none;
+            border: none;
+            color: #888;
+            font-size: 16px;
+            cursor: pointer;
+            margin-bottom: 32px;
+            transition: color 0.3s ease;
+        }
+        
+        .back-button:hover {
+            color: #fff;
+        }
+        
+        .reviews-section {
+            margin-top: 48px;
+        }
+        
+        .reviews-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 32px;
+        }
+        
+        .review {
+            padding: 24px 0;
+            transition: all 0.3s ease;
+        }
+        
+        .review:nth-child(even) {
+            background: rgba(255, 255, 255, 0.02);
+            margin: 0 -32px;
+            padding: 24px 32px;
+        }
+        
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .review-user {
+            font-weight: 600;
+            font-size: 16px;
+        }
+        
+        .review-rating {
+            color: #888;
+            font-size: 14px;
+        }
+        
+        .review-text {
+            line-height: 1.6;
+            color: #ccc;
+        }
+        
+        .loading {
+            color: #888;
+            text-align: center;
+            padding: 64px 0;
+            font-size: 18px;
+        }
+        
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #111;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 3px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo-section">
+                    <div class="logo-dots">
+                        <div class="dot dot-red"></div>
+                        <div class="dot dot-green"></div>
+                        <div class="dot dot-blue"></div>
+                    </div>
+                    <div class="logo">Waxfeed</div>
+                </div>
+                <nav>
+                    <a class="nav-link active" data-tab="trending">Trending</a>
+                    <a class="nav-link" data-tab="friends">Friends</a>
+                    <a class="nav-link" data-tab="profile">Profile</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <!-- Trending Tab -->
+            <div id="trending" class="tab-content active">
+                <h1 class="section-title">Trending</h1>
+                <div class="search-container">
+                    <input type="text" class="search-input" placeholder="Search albums, artists..." id="search-input">
+                </div>
+                <div id="trending-albums" class="album-grid">
+                    <div class="loading">Loading trending albums...</div>
+                </div>
+            </div>
+
+            <!-- Friends Tab -->
+            <div id="friends" class="tab-content">
+                <h1 class="section-title">Friends Activity</h1>
+                <div class="loading">Coming soon...</div>
+            </div>
+
+            <!-- Profile Tab -->
+            <div id="profile" class="tab-content">
+                <h1 class="section-title">Profile</h1>
+                <div class="loading">Coming soon...</div>
+            </div>
+
+            <!-- Album Detail View -->
+            <div id="album-detail" class="album-detail">
+                <button class="back-button" onclick="goBack()">← Back to Trending</button>
+                <div class="album-header">
+                    <div id="album-cover-large" class="album-cover-large"></div>
+                    <div class="album-meta">
+                        <div id="album-title-large" class="album-title-large"></div>
+                        <div id="album-artist-large" class="album-artist-large"></div>
+                        <div id="album-year" class="album-year"></div>
+                    </div>
+                </div>
+                <div class="reviews-section">
+                    <h2 class="reviews-title">Reviews</h2>
+                    <div id="album-reviews"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // API configuration
+        const API_BASE = 'http://localhost:8000';
+        let currentAlbum = null;
+        
+        // Tab navigation with animations
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const tabId = link.dataset.tab;
+                
+                // Update active nav
+                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                link.classList.add('active');
+                
+                // Hide album detail if showing
+                document.getElementById('album-detail').classList.remove('active');
+                
+                // Update active tab content with fade transition
+                document.querySelectorAll('.tab-content').forEach(tab => {
+                    tab.classList.remove('active');
+                });
+                
+                setTimeout(() => {
+                    document.getElementById(tabId).classList.add('active');
+                    loadTabContent(tabId);
+                }, 100);
+            });
+        });
+        
+        // Search with debouncing
+        let searchTimeout;
+        document.getElementById('search-input').addEventListener('input', (e) => {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                const query = e.target.value.trim();
+                if (query.length >= 2) {
+                    searchAlbums(query);
+                } else {
+                    loadTrendingAlbums();
+                }
+            }, 300);
+        });
+        
+        // API functions
+        async function fetchAPI(endpoint) {
+            try {
+                const response = await fetch(`${API_BASE}${endpoint}`);
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                return await response.json();
+            } catch (error) {
+                console.error('API Error:', error);
+                return null;
+            }
+        }
+        
+        async function loadTrendingAlbums() {
+            const albums = await fetchAPI('/trending/albums');
+            if (albums) {
+                renderAlbums(albums, 'trending-albums');
+            }
+        }
+        
+        async function searchAlbums(query) {
+            const results = await fetchAPI(`/albums/search?q=${encodeURIComponent(query)}`);
+            if (results) {
+                renderAlbums(results, 'trending-albums');
+            }
+        }
+        
+        async function loadAlbumDetail(albumId) {
+            const album = await fetchAPI(`/albums/${albumId}`);
+            const reviews = await fetchAPI(`/albums/${albumId}/reviews`);
+            
+            if (album) {
+                currentAlbum = album;
+                
+                // Hide trending, show album detail
+                document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+                
+                // Populate album details
+                document.getElementById('album-cover-large').style.backgroundImage = `url('${album.cover_url}')`;
+                document.getElementById('album-title-large').textContent = album.title;
+                document.getElementById('album-artist-large').textContent = album.artist;
+                document.getElementById('album-year').textContent = new Date(album.release_date).getFullYear();
+                
+                // Render reviews
+                renderReviews(reviews || []);
+                
+                // Show album detail with animation
+                setTimeout(() => {
+                    document.getElementById('album-detail').classList.add('active');
+                }, 100);
+            }
+        }
+        
+        function renderAlbums(albums, containerId) {
+            const container = document.getElementById(containerId);
+            
+            if (!albums || albums.length === 0) {
+                container.innerHTML = '<div class="loading">No albums found</div>';
+                return;
+            }
+            
+            container.innerHTML = albums.map((album, index) => `
+                <div class="album-card" onclick="selectAlbum('${album.id}')" style="animation-delay: ${index * 0.1}s">
+                    <div class="album-cover" style="background-image: url('${album.cover_url}')"></div>
+                    <div class="album-info">
+                        <div class="album-title">${escapeHtml(album.title)}</div>
+                        <div class="album-artist">${escapeHtml(album.artist)}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function renderReviews(reviews) {
+            const container = document.getElementById('album-reviews');
+            
+            if (!reviews || reviews.length === 0) {
+                container.innerHTML = '<div class="loading">No reviews yet</div>';
+                return;
+            }
+            
+            container.innerHTML = reviews.map(review => `
+                <div class="review">
+                    <div class="review-header">
+                        <div class="review-user">${escapeHtml(review.user_name || 'Anonymous')}</div>
+                        <div class="review-rating">${review.rating ? `★ ${review.rating}/10` : ''}</div>
+                    </div>
+                    <div class="review-text">${escapeHtml(review.review_text || 'No review text')}</div>
+                </div>
+            `).join('');
+        }
+        
+        function loadTabContent(tabId) {
+            switch(tabId) {
+                case 'trending':
+                    loadTrendingAlbums();
+                    break;
+                case 'friends':
+                    // Load friends activity
+                    break;
+                case 'profile':
+                    // Load profile content
+                    break;
+            }
+        }
+        
+        function selectAlbum(albumId) {
+            loadAlbumDetail(albumId);
+        }
+        
+        function goBack() {
+            document.getElementById('album-detail').classList.remove('active');
+            setTimeout(() => {
+                document.getElementById('trending').classList.add('active');
+            }, 100);
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // Scroll animations
+        function animateOnScroll() {
+            const elements = document.querySelectorAll('.album-card');
+            elements.forEach(el => {
+                const rect = el.getBoundingClientRect();
+                if (rect.top < window.innerHeight && rect.bottom > 0) {
+                    el.style.transform = 'translateY(0) scale(1)';
+                    el.style.opacity = '1';
+                }
+            });
+        }
+        
+        window.addEventListener('scroll', animateOnScroll);
+        
+        // Initialize
+        loadTrendingAlbums();
+    </script>
+</body>
+</html>

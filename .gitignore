@@ -59,3 +59,9 @@ Thumbs.db
 # Logs
 *.log
 logs/
+
+.gitignore
+.claude/
+
+#ui dependencies
+node_modules/
